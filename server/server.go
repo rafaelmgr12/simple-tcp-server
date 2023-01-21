@@ -5,10 +5,12 @@ import (
 	"io"
 	"log"
 	"net"
+	"strconv"
 	"strings"
 )
 
 func main() {
+	var counter int = 0
 	listener, err := net.Listen("tcp", "0.0.0.0:9999")
 	if err != nil {
 		log.Fatalln(err)
@@ -23,11 +25,13 @@ func main() {
 		}
 
 		// If you want, you can increment a counter here and inject to handleClientRequest below as client identifier
-		go handleClientRequest(con)
+		counter++
+		go handleClientRequest(con, counter)
+
 	}
 }
 
-func handleClientRequest(con net.Conn) {
+func handleClientRequest(con net.Conn, counter int) {
 	defer con.Close()
 
 	clientReader := bufio.NewReader(con)
@@ -43,7 +47,7 @@ func handleClientRequest(con net.Conn) {
 				log.Println("client requested server to close the connection so closing")
 				return
 			} else {
-				log.Println(clientRequest)
+				log.Println(clientRequest + " from client " + strconv.Itoa(counter))
 			}
 		case io.EOF:
 			log.Println("client closed the connection by terminating the process")
